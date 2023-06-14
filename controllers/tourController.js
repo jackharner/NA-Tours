@@ -16,6 +16,16 @@ exports.checkID = (req, res, next, val) => {
     next();
 }
 
+exports.checkBody = (req, res, next) => {
+    if (!(Object.hasOwn(req.body, 'name') && Object.hasOwn(req.body, 'price'))) {
+        return res.status(400).json({
+            status: 'fail',
+            message: 'body must contain both name and price properties'
+        });
+    }
+    next();
+}
+
 exports.getAllTours = (req, res) => {
     console.log(req.requestTime);
 

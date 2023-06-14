@@ -10,6 +10,7 @@ const app = express();
 app.use(morgan('dev'));
 app.use(express.json()); // middleware that allows us to access the body of the request (it's not present without this line)
 
+
 app.use((req, res, next) => { // custom middleware example
     console.log('Hello from the middleware');
     next();
