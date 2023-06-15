@@ -1,7 +1,8 @@
 const dontenv = require('dotenv');
-dontenv.config({ path: './config.env' })
+const app = require('./app');
 
-const app = require('./app')
+dontenv.config({ path: './config.env' });
+
 
 
 // console.log(process.env);
