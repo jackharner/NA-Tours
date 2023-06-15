@@ -7,9 +7,13 @@ const userRouter = require('./routes/userRoutes');
 const app = express();
 
 // 1) MIDDLEWARES
-app.use(morgan('dev'));
-app.use(express.json()); // middleware that allows us to access the body of the request (it's not present without this line)
+if (process.env.NODE_ENV === 'development') {
+    app.use(morgan('dev'));
+}
 
+
+app.use(express.json()); // middleware that allows us to access the body of the request (it's not present without this line)
+app.use(express.static(`${__dirname}/public`)); // middleware that gives us access to static files like HTML files
 
 app.use((req, res, next) => { // custom middleware example
     console.log('Hello from the middleware');
