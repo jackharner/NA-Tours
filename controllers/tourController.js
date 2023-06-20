@@ -1,58 +1,21 @@
 const Tour = require('./../models/tourModel');
+const APIFeatures = require('./../utils/apiFeatures');
+
+exports.aliasTopTours = (req, res, next) => {
+    req.query.limit = '5';
+    req.query.sort = '-ratingsAverage,price';
+    req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
+    next();
+}
+
 
 
 exports.getAllTours = async (req, res) => {
     try {
-        console.log(req.query);
-        // BUILD QUERY
-        // 1A) Filtering
-        const queryObj = {...req.query};
-        const excludedFields = ['page', 'sort', 'limit', 'fields'];
-        excludedFields.forEach(el => delete queryObj[el]);
-        
-        // 2B) Advanced filtering
-        let queryStr = JSON.stringify(queryObj);
-        queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
-        console.log(JSON.parse(queryStr));
-
-        let query = Tour.find(JSON.parse(queryStr));
-
-        // 2) Sorting
-        if(req.query.sort) {
-            const sortBy = req.query.sort.split(',').join(' ');
-            query = query.sort(sortBy);
-        } else {
-            query = query.sort('-createdAt'); // "-" means descending
-        }
-
-        // 3) Field Limiting
-        if (req.query.fields) {
-            const fields = req.query.fields.split(',').join(' ');
-            query = query.select(fields);
-        } else {
-            query = query.select('-__v'); // "-" excludes this field
-        }
-
-        // 4) Pagination
-        const page = req.query.page * 1 || 1; // convert string to number
-        const limit = req.query.limit * 1 || 100;
-        const skip = (page - 1) * limit;
-
-        query = query.skip(skip).limit(limit);
-
-        if (req.query.page) {
-            const numTours = await Tour.countDocuments();
-            if(skip >= numTours) throw new Error('This page does not exist'); // exit try block into catch block
-        }
         
         // EXECUTE QUERY
-        const tours = await query; // query gets sent to database and return value gets put in tours variable
-        
-        // const tours = await Tour.find() // equivalent
-        //     .where('duration')
-        //     .equals(5)
-        //     .where('difficulty')
-        //     .equals('easy');
+        const features = new APIFeatures(Tour.find(), req.query).filter().sort().limitFields().paginate();
+        const tours = await features.query; // query gets sent to database and return value gets put in tours variable
         
         // SEND RESPONSE
         res.status(200).json({

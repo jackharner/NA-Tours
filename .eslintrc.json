@@ -15,7 +15,9 @@
     "class-methods-use-this": "off",
     "no-undef": "off",
     "no-unused-expressions": "off",
+    "no-self-assign": ["error", {"props": true}],
+    "prefer-const": "off",
     "prefer-destructuring": ["error", { "object": true, "array": false }],
-    "no-unused-vars": ["warn", { "argsIgnorePattern": "req|res|next|val" }]
+    "no-unused-vars": ["off", { "argsIgnorePattern": "req|res|next|val" }]
   }
 }
