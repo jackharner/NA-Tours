@@ -27,7 +27,6 @@ class APIFeatures {
         } else {
             this.query = this.query.sort('-createdAt'); // "-" means descending
         }
-        console.log(err);
 
         return this;
     }
