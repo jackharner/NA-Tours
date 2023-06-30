@@ -12,19 +12,23 @@ const signToken = id => {
     });
 }
 
+const createSendToken = (user, statusCode, res) => {
+    const token = signToken(user._id);
+    
+    
+    res.status(statusCode).json({
+        status: 'success',
+        token,
+        /*data: {
+            user -- I could send user, but this sends the password back to client
+        } */ 
+    });
+}
+
 exports.signup = catchAsync( async (req, res, next) => {
     // const newUser = await User.create(req.body);
     const newUser = await User.create({name: req.body.name, email: req.body.email, password: req.body.password, passwordConfirm: req.body.passwordConfirm});
-
-    const token = signToken(newUser._id);
-
-    res.status(201).json({
-        status: 'success',
-        token,
-        data: {
-            user: newUser
-        }
-    });
+    createSendToken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -37,16 +41,12 @@ exports.login = catchAsync(async (req, res, next) => {
     // 2) Check if user exists && password is correct
     const user = await User.findOne({email}).select('+password');
 
-    if(!user || !(await user.correctPassword(password, user.password))) { // known limitation: this implementation allows guess and check of usernames via time it takes for reqest
+    if(!user || !(await user.correctPassword(password, user.password))) {
         return next(new AppError('Incorrect email or password', 401));
     }
 
     // 3) If everything is okay, send token to client
-    const token = signToken(user._id);
-    res.status(200).json({
-        status: 'success',
-        token
-    });
+    createSendToken(user, 200, res);
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -55,11 +55,12 @@ exports.protect = catchAsync(async (req, res, next) => {
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         token = req.headers.authorization.split(' ')[1];
     }
-
+    
     if (!token) {
         return next(new AppError('You are not logged in! Please log in to get access', 401));
     }
     // 2) Verification token
+    console.log('printing token', token);
     const decoded = await promisify(jwt.verify)(token,process.env.JWT_SECRET); // profisifying the verify method from the jwt module, then calling the verify method
 
     // 3) Check if user still exists
@@ -139,25 +140,34 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     user.passwordResetExpires = undefined;
     await user.save();
 
-    // 3) Update changedPasswordAt property for the user
+    // 3) Update changedPasswordAt property for the user, done in schema
 
     // 4) Log the user in, send JWT
-    const token = signToken(user._id);
-
-    res.status(200).json({
-        status: 'success',
-        token
-    });
+    createSendToken(user, 200, res);
 
 });
 
-exports.updatePassword = (req, res, next) => {
-    // 1) Get user from collection
+exports.updatePassword = catchAsync(async (req, res, next) => {
     
+    // Check if password exists
+    if(!req.body.passwordCurrent || !req.body.password || !req.body.passwordConfirm) {
+        return next(new AppError('Please provide current password, new password, and confirm new password', 400));
+    }
+    
+    // 1) Get user from collection
+    const user = await User.findById(req.user.id).select('+password');
 
     // 2) Check if POSTed current password is correct
+    if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
+        return next(new AppError('Incorrect password', 401));
+    }
 
     // 3) If so, update password
+    user.password = req.body.password;
+    user.passwordConfirm = req.body.passwordConfirm;
+    await user.save(); // User.findByIdAndUpdate will NOT work because it will not run validations and presave logic
 
     // 4) Log user in, send JWT
-}
+    createSendToken(user, 200, res);
+
+});
