@@ -15,13 +15,15 @@ const signToken = id => {
 const createSendToken = (user, statusCode, res) => {
     const token = signToken(user._id);
     
-    
+    const clonedUser = JSON.parse(JSON.stringify(user));
+    delete clonedUser.password; // don't send password back to client
+
     res.status(statusCode).json({
         status: 'success',
         token,
-        /*data: {
-            user -- I could send user, but this sends the password back to client
-        } */ 
+        data: {
+            data: clonedUser
+        }
     });
 }
 
