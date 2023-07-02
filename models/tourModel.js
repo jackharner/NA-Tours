@@ -119,6 +119,13 @@ tourSchema.virtual('durationWeeks').get(function() {
     return this.duration / 7;
 });
 
+// Virtual populate
+tourSchema.virtual('reviews', {
+    ref: 'Review',
+    foreignField: 'tour',
+    localField: '_id'
+})
+
 // DOCUMENT MIDDLEWARE: runs before .save() and .create() but not insertMany, findByIdAndUpdate, or findOneAndUpdate...
 tourSchema.pre('save', function(next) {
     this.slug = slugify(this.name, { lower: true }) // this is the currently document being saved
