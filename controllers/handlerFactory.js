@@ -69,7 +69,7 @@ exports.getAll = Model => catchAsync(async (req, res, next) => {
     if (req.params.tourId) filter = {tour: req.params.tourId}
 
     const features = new APIFeatures(Model.find(filter), req.query).filter().sort().limitFields().paginate();
-    const doc = await features.query; // query gets sent to database and return value gets put in doc variable
+    const doc = await features.query/*.explain()*/; // query gets sent to database and return value gets put in doc variable, "explain()" for DB metrics
     
     // SEND RESPONSE
     res.status(200).json({
