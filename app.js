@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const morgan = require('morgan'); // logging functionality, 3rd party middleware example
 const rateLimit = require('express-rate-limit');
@@ -7,14 +8,19 @@ const xss = require('xss-clean');
 const hpp = require('hpp');
 
 const AppError = require('./utils/appError');
-const globalErrorHandler = require('./controllers/errorController')
+const globalErrorHandler = require('./controllers/errorController');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
 
 const app = express();
 
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views')); // define which file our views are in (./ could be used, but is less ideal because we might run app from somewhere else)
+// path.join automatically creates a correct path, regardless of whether a / is there or not
+
 // 1) GLOBAL MIDDLEWARES
+app.use(express.static(path.join(__dirname, 'public'))); // middleware that allows us to serve static files like HTML files
 app.use(helmet()); // Set security HTTP headers
 
 if (process.env.NODE_ENV === 'development') { // Development logging
@@ -25,7 +31,7 @@ if (process.env.NODE_ENV === 'development') { // Development logging
 const limiter = rateLimit({
     max: 100,
     windowMs: 60 * 60 * 1000,
-    message: 'Too many requests from this IP, please try again in an hour!' 
+    message: 'Too many requests from this IP, please try again in an hour!'
 });
 app.use('/api', limiter);
 
@@ -52,7 +58,6 @@ app.use(
     })
 );
 
-app.use(express.static(`${__dirname}/public`)); // middleware that allows us to serve static files like HTML files
 
 app.use((req, res, next) => { // Test middleware
     req.requestTime = new Date().toISOString();
@@ -62,6 +67,14 @@ app.use((req, res, next) => { // Test middleware
 })
 
 // 3) ROUTES
+
+app.get('/', (req, res) => {
+    res.status(200).render('base', { // {} object available in pug template
+        tour: 'The Forest Hiker',
+        user: 'Jack'
+    });
+})
+
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
