@@ -3,7 +3,7 @@ const locations = JSON.parse(document.getElementById('map').dataset.locations);
 console.log(locations);
 
 
-mapboxgl.accessToken = 'pk.eyJ1IjoicnVubmluZy1wZW5ndWluIiwiYSI6ImNsc3M3bDV5aDEwaXMybG55dW03d3UyenoifQ.uVYFw-t3J03kJo0Utjc_Ew';
+mapboxgl.accessToken = ''; // put access token back to test (but don't commit to source control)
 var map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/running-penguin/clss8m23100b601phgpexbb6k',
