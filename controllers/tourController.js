@@ -13,7 +13,7 @@ exports.aliasTopTours = (req, res, next) => {
 
 
 exports.getAllTours = factory.getAll(Tour);
-exports.getTour = factory.getOne(Tour, { path: 'reviews'});
+exports.getTour = factory.getOne(Tour, { path: 'reviews' });
 exports.createTour = factory.createOne(Tour);
 exports.updateTour = factory.updateOne(Tour);
 exports.deleteTour = factory.deleteOne(Tour);
@@ -21,13 +21,13 @@ exports.deleteTour = factory.deleteOne(Tour);
 exports.getTourStats = catchAsync(async (req, res, next) => {
     const stats = await Tour.aggregate([
         {
-            $match: {ratingsAverage: { $gte: 4.5}}
+            $match: { ratingsAverage: { $gte: 4.5 } }
         },
         {
             $group: {
-                _id: {$toUpper: '$difficulty'},
+                _id: { $toUpper: '$difficulty' },
                 numTours: { $sum: 1 },
-                numRatings: { $sum: '$ratingsQuantity'},
+                numRatings: { $sum: '$ratingsQuantity' },
                 avgRating: { $avg: '$ratingsAverage' },
                 avgPrice: { $avg: '$price' },
                 minPrice: { $min: '$price' },
@@ -44,7 +44,7 @@ exports.getTourStats = catchAsync(async (req, res, next) => {
         data: {
             stats
         }
-        });
+    });
 });
 
 exports.getMonthlyPlan = catchAsync(async (req, res, next) => { // Help to get busiest month of the year
@@ -64,13 +64,13 @@ exports.getMonthlyPlan = catchAsync(async (req, res, next) => { // Help to get b
         },
         {
             $group: {
-                _id: { $month: '$startDates'},
-                numTourStarts: { $sum: 1},
-                tours: { $push: '$name'}
+                _id: { $month: '$startDates' },
+                numTourStarts: { $sum: 1 },
+                tours: { $push: '$name' }
             }
         },
         {
-            $addFields: {month: '$_id'}
+            $addFields: { month: '$_id' }
         },
         {
             $project: {
@@ -78,7 +78,7 @@ exports.getMonthlyPlan = catchAsync(async (req, res, next) => { // Help to get b
             }
         },
         {
-            $sort: { numTourStarts: -1}
+            $sort: { numTourStarts: -1 }
         },
         {
             $limit: 12 // reference only
@@ -101,16 +101,16 @@ exports.getToursWithin = catchAsync(async (req, res, next) => {
 
     const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
 
-    if(!lat || !lng) {
+    if (!lat || !lng) {
         next(
             new AppError('Please provide latitude and longitude in the format of lat,lng',
-            400
+                400
             )
         );
     }
 
     const tours = await Tour.find({
-        startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } } 
+        startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } }
     });
 
     res.status(200).json({
@@ -128,10 +128,10 @@ exports.getDistances = catchAsync(async (req, res, next) => {
 
     const multiplier = unit === 'mi' ? 0.000621371 : 0.001;
 
-    if(!lat || !lng) {
+    if (!lat || !lng) {
         next(
             new AppError('Please provide latitude and longitude in the format of lat,lng',
-            400
+                400
             )
         );
     }
