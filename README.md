@@ -14,4 +14,4 @@ Start the server in development mode:
 2) in a separate terminal run the command "npm start"
 
 View Application:
-open browser to localhost:300
+open browser to localhost:3000
