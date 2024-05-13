@@ -14,7 +14,7 @@ Project features:
 Technologies used:
 - Node.js, Express.js, MongoDB, Mongoose, JavaScript, REST API
 
-
+---
 
 Project setup:
 1) Create and connect MongoDB Database
