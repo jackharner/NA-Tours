@@ -12,7 +12,7 @@ Project features:
 - credit card payments with Stripe
 
 Technologies used:
-• Node.js, Express.js, MongoDB, Mongoose, JavaScript, REST API
+- Node.js, Express.js, MongoDB, Mongoose, JavaScript, REST API
 
 
 
@@ -22,7 +22,7 @@ Project setup:
 3) Create a "config.env" file at the top-level with the required secrets
 
 Start Server (view mode, not development mode):
-run "npm Start"
+- run the command "npm Start"
 
 Start the server in development mode:
 1) run the command "npm watch:js" to make Webpack listen for updates
